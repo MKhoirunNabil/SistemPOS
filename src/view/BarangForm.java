@@ -4,7 +4,7 @@
  */
 package view;
 import model.Barang;
-//import service.BarangService;
+import service.BarangService;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import javax.swing.event.DocumentListener;
@@ -15,8 +15,10 @@ import java.util.List;
  * @author user
  */
 public class BarangForm extends javax.swing.JFrame {
-//    private BarangService barangService = new BarangService();
+    
+    private BarangService barangService = new BarangService();
     private DefaultTableModel modelBarang;
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(BarangForm.class.getName());
 
     /**
@@ -24,11 +26,12 @@ public class BarangForm extends javax.swing.JFrame {
      */
     public BarangForm() {
         initComponents();
+        setLocationRelativeTo(null);
         setupTabelBarang();
         muatSemuaBarang();
         pasangLiveSearch();
     }
-
+    
     private void setupTabelBarang() {
         String[] kolom = {"Barcode", "Nama Barang", "Kategori", "Harga Beli", "Harga Jual", "Stok", "Satuan"};
         modelBarang = new DefaultTableModel(kolom, 0) {
@@ -39,7 +42,7 @@ public class BarangForm extends javax.swing.JFrame {
         };
         tblBarang.setModel(modelBarang);
     }
-    
+
     private void muatSemuaBarang() {
         try {
             List<Barang> daftarBarang = barangService.ambilSemuaBarang();
@@ -66,7 +69,7 @@ public class BarangForm extends javax.swing.JFrame {
             });
         }
         lblJumlahData.setText("Menampilkan " + daftarBarang.size() + " data barang");
-    }
+    }    
     
     private void pasangLiveSearch() {
         txtCariBarang.getDocument().addDocumentListener(new DocumentListener() {
@@ -93,6 +96,7 @@ public class BarangForm extends javax.swing.JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -334,16 +338,30 @@ public class BarangForm extends javax.swing.JFrame {
 
             FormTambahEditBarang form = new FormTambahEditBarang(barangTerpilih);
             form.setLocationRelativeTo(this);
+
+            // Pengecekan simpan dipindah ke sini, baru jalan SETELAH form ditutup
+            form.addWindowListener(new java.awt.event.WindowAdapter() {
+                @Override
+                public void windowClosed(java.awt.event.WindowEvent e) {
+                    if (form.isSimpanDiklik()) {
+                        try {
+                            barangService.updateBarang(form.getBarangHasil());
+                            JOptionPane.showMessageDialog(BarangForm.this, "Barang berhasil diperbarui!");
+                            muatSemuaBarang();
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(BarangForm.this,
+                                    "Gagal mengedit barang: " + ex.getMessage(),
+                                    "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            });
+
             form.setVisible(true);
 
-            if (form.isSimpanDiklik()) {
-                barangService.updateBarang(form.getBarangHasil());
-                JOptionPane.showMessageDialog(this, "Barang berhasil diperbarui!");
-                muatSemuaBarang();
-            }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,
-                    "Gagal mengedit barang: " + e.getMessage(),
+                    "Gagal mengambil data barang: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -394,7 +412,7 @@ public class BarangForm extends javax.swing.JFrame {
 
     private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
         // TODO add your handling code here:
-         JOptionPane.showMessageDialog(this,
+        JOptionPane.showMessageDialog(this,
             "Fitur Export akan tersedia pada update berikutnya.",
             "Info",
             JOptionPane.INFORMATION_MESSAGE);

@@ -429,12 +429,7 @@ public class Dasboard extends javax.swing.JFrame {
 
     private void panelMenuDataBarangMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuDataBarangMouseClicked
         // TODO add your handling code here:
-        JOptionPane.showMessageDialog(
-            this,
-            "Fitur Data Barang akan tersedia pada update berikutnya.",
-            "Info",
-            JOptionPane.INFORMATION_MESSAGE
-        );
+        new view.BarangForm().setVisible(true);
     }//GEN-LAST:event_panelMenuDataBarangMouseClicked
 
     private void panelMenuKasirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuKasirMouseClicked
@@ -444,12 +439,7 @@ public class Dasboard extends javax.swing.JFrame {
 
     private void panelMenuLaporanMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuLaporanMouseClicked
         // TODO add your handling code here:
-        JOptionPane.showMessageDialog(
-            this,
-            "Fitur Laporan akan tersedia pada update berikutnya.",
-            "Info",
-            JOptionPane.INFORMATION_MESSAGE
-        );
+        new view.LaporanForm().setVisible(true);    
     }//GEN-LAST:event_panelMenuLaporanMouseClicked
 
     private void panelMenuBackupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_panelMenuBackupMouseClicked

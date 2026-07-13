@@ -42,9 +42,9 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
             cmbSatuan.setSelectedItem(barangEdit.getSatuan());
         }
     }
-
+    
     public boolean isSimpanDiklik() {
-    return simpanDiklik;
+        return simpanDiklik;
     }
 
     public Barang getBarangHasil() {
@@ -58,6 +58,9 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         b.setSatuan((String) cmbSatuan.getSelectedItem());
         return b;
     }
+    
+    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -128,6 +131,7 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         lblKategori.setForeground(new java.awt.Color(55, 65, 81));
         lblKategori.setText("Kategori");
 
+        cmbKategori.setEditable(true);
         cmbKategori.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Makanan", "Minuman", "Sembako", "Lainnya" }));
         cmbKategori.setPreferredSize(new java.awt.Dimension(380, 36));
@@ -160,6 +164,7 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         lblSatuan.setForeground(new java.awt.Color(55, 65, 81));
         lblSatuan.setText("Satuan");
 
+        cmbSatuan.setEditable(true);
         cmbSatuan.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         cmbSatuan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "pcs", "botol", "karung", "renceng", "dus" }));
         cmbSatuan.setPreferredSize(new java.awt.Dimension(380, 36));
@@ -320,7 +325,7 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new FormTambahEditBarang().setVisible(true));
+        java.awt.EventQueue.invokeLater(() -> new FormTambahEditBarang(null).setVisible(true));
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
