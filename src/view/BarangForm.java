@@ -3,13 +3,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package view;
-
+import model.Barang;
+//import service.BarangService;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
+import java.util.List;
 /**
  *
  * @author user
  */
 public class BarangForm extends javax.swing.JFrame {
-    
+//    private BarangService barangService = new BarangService();
+    private DefaultTableModel modelBarang;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(BarangForm.class.getName());
 
     /**
@@ -17,8 +24,75 @@ public class BarangForm extends javax.swing.JFrame {
      */
     public BarangForm() {
         initComponents();
+        setupTabelBarang();
+        muatSemuaBarang();
+        pasangLiveSearch();
     }
 
+    private void setupTabelBarang() {
+        String[] kolom = {"Barcode", "Nama Barang", "Kategori", "Harga Beli", "Harga Jual", "Stok", "Satuan"};
+        modelBarang = new DefaultTableModel(kolom, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // semua kolom read-only
+            }
+        };
+        tblBarang.setModel(modelBarang);
+    }
+    
+    private void muatSemuaBarang() {
+        try {
+            List<Barang> daftarBarang = barangService.ambilSemuaBarang();
+            tampilkanKeTabel(daftarBarang);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Gagal memuat data barang: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void tampilkanKeTabel(List<Barang> daftarBarang) {
+        modelBarang.setRowCount(0); // kosongkan tabel dulu
+        for (Barang b : daftarBarang) {
+            modelBarang.addRow(new Object[]{
+                    b.getBarcode(),
+                    b.getNamaBarang(),
+                    b.getKategori(),
+                    b.getHargaBeli(),
+                    b.getHargaJual(),
+                    b.getStok(),
+                    b.getSatuan()
+            });
+        }
+        lblJumlahData.setText("Menampilkan " + daftarBarang.size() + " data barang");
+    }
+    
+    private void pasangLiveSearch() {
+        txtCariBarang.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) { cariBarangSekarang(); }
+            @Override
+            public void removeUpdate(DocumentEvent e) { cariBarangSekarang(); }
+            @Override
+            public void changedUpdate(DocumentEvent e) { cariBarangSekarang(); }
+        });
+    }
+
+    private void cariBarangSekarang() {
+        String keyword = txtCariBarang.getText().trim();
+        try {
+            List<Barang> hasil = keyword.isEmpty()
+                    ? barangService.ambilSemuaBarang()
+                    : barangService.cariBarang(keyword);
+            tampilkanKeTabel(hasil);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Gagal mencari barang: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -68,6 +142,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnTutupBarang.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnTutupBarang.setFocusable(false);
         btnTutupBarang.setPreferredSize(new java.awt.Dimension(32, 32));
+        btnTutupBarang.addActionListener(this::btnTutupBarangActionPerformed);
         panelHeaderBarang.add(btnTutupBarang, java.awt.BorderLayout.EAST);
 
         getContentPane().add(panelHeaderBarang, java.awt.BorderLayout.NORTH);
@@ -94,6 +169,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnCariBarang.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnCariBarang.setFocusable(false);
         btnCariBarang.setPreferredSize(new java.awt.Dimension(80, 34));
+        btnCariBarang.addActionListener(this::btnCariBarangActionPerformed);
         panelSearchToolbar.add(btnCariBarang);
 
         btnRefresh.setBackground(new java.awt.Color(243, 244, 246));
@@ -103,6 +179,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnRefresh.setFocusable(false);
         btnRefresh.setPreferredSize(new java.awt.Dimension(100, 34));
+        btnRefresh.addActionListener(this::btnRefreshActionPerformed);
         panelSearchToolbar.add(btnRefresh);
 
         panelToolbarBarang.add(panelSearchToolbar, java.awt.BorderLayout.WEST);
@@ -118,6 +195,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnTambah.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnTambah.setFocusable(false);
         btnTambah.setPreferredSize(new java.awt.Dimension(140, 34));
+        btnTambah.addActionListener(this::btnTambahActionPerformed);
         panelAksiToolbar.add(btnTambah);
 
         btnEdit.setBackground(new java.awt.Color(37, 99, 235));
@@ -128,6 +206,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnEdit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnEdit.setFocusable(false);
         btnEdit.setPreferredSize(new java.awt.Dimension(80, 34));
+        btnEdit.addActionListener(this::btnEditActionPerformed);
         panelAksiToolbar.add(btnEdit);
 
         btnHapus.setBackground(new java.awt.Color(220, 38, 38));
@@ -138,6 +217,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnHapus.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnHapus.setFocusable(false);
         btnHapus.setPreferredSize(new java.awt.Dimension(80, 34));
+        btnHapus.addActionListener(this::btnHapusActionPerformed);
         panelAksiToolbar.add(btnHapus);
 
         btnImport.setBackground(new java.awt.Color(243, 244, 246));
@@ -148,6 +228,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnImport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnImport.setFocusable(false);
         btnImport.setPreferredSize(new java.awt.Dimension(90, 34));
+        btnImport.addActionListener(this::btnImportActionPerformed);
         panelAksiToolbar.add(btnImport);
 
         btnExport.setBackground(new java.awt.Color(243, 244, 246));
@@ -158,6 +239,7 @@ public class BarangForm extends javax.swing.JFrame {
         btnExport.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnExport.setFocusable(false);
         btnExport.setPreferredSize(new java.awt.Dimension(90, 34));
+        btnExport.addActionListener(this::btnExportActionPerformed);
         panelAksiToolbar.add(btnExport);
 
         panelToolbarBarang.add(panelAksiToolbar, java.awt.BorderLayout.EAST);
@@ -195,6 +277,133 @@ public class BarangForm extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnCariBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCariBarangActionPerformed
+        // TODO add your handling code here:
+        cariBarangSekarang();
+    }//GEN-LAST:event_btnCariBarangActionPerformed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        txtCariBarang.setText("");
+        muatSemuaBarang();
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        // TODO add your handling code here:
+        FormTambahEditBarang form = new FormTambahEditBarang(null);
+        form.setLocationRelativeTo(this);
+        form.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                if (form.isSimpanDiklik()) {
+                    try {
+                        barangService.tambahBarang(form.getBarangHasil());
+                        JOptionPane.showMessageDialog(BarangForm.this, "Barang berhasil ditambahkan!");
+                        muatSemuaBarang();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(BarangForm.this,
+                                "Gagal menambah barang: " + ex.getMessage(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+        form.setVisible(true);
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        // TODO add your handling code here:
+        int baris = tblBarang.getSelectedRow();
+        if (baris == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Pilih dulu barang yang ingin diedit!",
+                    "Peringatan",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            String barcode = (String) modelBarang.getValueAt(baris, 0);
+            List<Barang> hasil = barangService.cariBarang(barcode);
+            if (hasil.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Data barang tidak ditemukan.");
+                return;
+            }
+            Barang barangTerpilih = hasil.get(0);
+
+            FormTambahEditBarang form = new FormTambahEditBarang(barangTerpilih);
+            form.setLocationRelativeTo(this);
+            form.setVisible(true);
+
+            if (form.isSimpanDiklik()) {
+                barangService.updateBarang(form.getBarangHasil());
+                JOptionPane.showMessageDialog(this, "Barang berhasil diperbarui!");
+                muatSemuaBarang();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Gagal mengedit barang: " + e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        // TODO add your handling code here:
+        int baris = tblBarang.getSelectedRow();
+        if (baris == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Pilih dulu barang yang ingin dihapus!",
+                    "Peringatan",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int konfirmasi = JOptionPane.showConfirmDialog(this,
+                "Yakin ingin menghapus barang ini?",
+                "Konfirmasi Hapus",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (konfirmasi == JOptionPane.YES_OPTION) {
+            try {
+                String barcode = (String) modelBarang.getValueAt(baris, 0);
+                List<Barang> hasil = barangService.cariBarang(barcode);
+                if (!hasil.isEmpty()) {
+                    barangService.hapusBarang(hasil.get(0).getIdBarang());
+                    JOptionPane.showMessageDialog(this, "Barang berhasil dihapus!");
+                    muatSemuaBarang();
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Gagal menghapus barang: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void btnImportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportActionPerformed
+        // TODO add your handling code here:
+        JOptionPane.showMessageDialog(this,
+            "Fitur Import akan tersedia pada update berikutnya.",
+            "Info",
+            JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnImportActionPerformed
+
+    private void btnExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportActionPerformed
+        // TODO add your handling code here:
+         JOptionPane.showMessageDialog(this,
+            "Fitur Export akan tersedia pada update berikutnya.",
+            "Info",
+            JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_btnExportActionPerformed
+
+    private void btnTutupBarangActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTutupBarangActionPerformed
+        // TODO add your handling code here:
+        dispose();
+    }//GEN-LAST:event_btnTutupBarangActionPerformed
 
     /**
      * @param args the command line arguments

@@ -3,22 +3,61 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package view;
-
+import model.Barang;
+import javax.swing.JOptionPane;
 /**
  *
  * @author user
  */
 public class FormTambahEditBarang extends javax.swing.JFrame {
     
+    private boolean simpanDiklik = false;
+    private Barang barangEdit;
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormTambahEditBarang.class.getName());
 
     /**
      * Creates new form FormTambahEditBarang
      */
-    public FormTambahEditBarang() {
+    public FormTambahEditBarang(Barang barangEdit) {
         initComponents();
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        this.barangEdit = barangEdit;
+
+        if (barangEdit == null) {
+            // MODE TAMBAH
+            lblJudulFormBarang.setText("Tambah Barang Baru");
+            setTitle("Tambah Barang Baru - Sistem POS Toko Pardono");
+        } else {
+            // MODE EDIT — isi semua field dari data barang yang mau diedit
+            lblJudulFormBarang.setText("Edit Barang");
+            setTitle("Edit Barang - Sistem POS Toko Pardono");
+
+            txtBarcode.setText(barangEdit.getBarcode());
+            txtNamaBarang.setText(barangEdit.getNamaBarang());
+            cmbKategori.setSelectedItem(barangEdit.getKategori());
+            txtHargaBeli.setText(String.valueOf(barangEdit.getHargaBeli()));
+            txtHargaJual.setText(String.valueOf(barangEdit.getHargaJual()));
+            txtStok.setText(String.valueOf(barangEdit.getStok()));
+            cmbSatuan.setSelectedItem(barangEdit.getSatuan());
+        }
     }
 
+    public boolean isSimpanDiklik() {
+    return simpanDiklik;
+    }
+
+    public Barang getBarangHasil() {
+        Barang b = (barangEdit != null) ? barangEdit : new Barang();
+        b.setBarcode(txtBarcode.getText().trim());
+        b.setNamaBarang(txtNamaBarang.getText().trim());
+        b.setKategori((String) cmbKategori.getSelectedItem());
+        b.setHargaBeli(Double.parseDouble(txtHargaBeli.getText().trim()));
+        b.setHargaJual(Double.parseDouble(txtHargaJual.getText().trim()));
+        b.setStok(Integer.parseInt(txtStok.getText().trim()));
+        b.setSatuan((String) cmbSatuan.getSelectedItem());
+        return b;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -89,7 +128,6 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         lblKategori.setForeground(new java.awt.Color(55, 65, 81));
         lblKategori.setText("Kategori");
 
-        cmbKategori.setEditable(true);
         cmbKategori.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         cmbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Makanan", "Minuman", "Sembako", "Lainnya" }));
         cmbKategori.setPreferredSize(new java.awt.Dimension(380, 36));
@@ -122,7 +160,6 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         lblSatuan.setForeground(new java.awt.Color(55, 65, 81));
         lblSatuan.setText("Satuan");
 
-        cmbSatuan.setEditable(true);
         cmbSatuan.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         cmbSatuan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "pcs", "botol", "karung", "renceng", "dus" }));
         cmbSatuan.setPreferredSize(new java.awt.Dimension(380, 36));
@@ -206,6 +243,7 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         btnBatal.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnBatal.setFocusable(false);
         btnBatal.setPreferredSize(new java.awt.Dimension(100, 40));
+        btnBatal.addActionListener(this::btnBatalActionPerformed);
         panelAksiFormBarang.add(btnBatal);
 
         btnSimpan.setBackground(new java.awt.Color(37, 99, 235));
@@ -216,12 +254,49 @@ public class FormTambahEditBarang extends javax.swing.JFrame {
         btnSimpan.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btnSimpan.setFocusable(false);
         btnSimpan.setPreferredSize(new java.awt.Dimension(100, 40));
+        btnSimpan.addActionListener(this::btnSimpanActionPerformed);
         panelAksiFormBarang.add(btnSimpan);
 
         getContentPane().add(panelAksiFormBarang, java.awt.BorderLayout.SOUTH);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSimpanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSimpanActionPerformed
+        // TODO add your handling code here:
+        if (txtBarcode.getText().trim().isEmpty()
+            || txtNamaBarang.getText().trim().isEmpty()
+            || txtHargaBeli.getText().trim().isEmpty()
+            || txtHargaJual.getText().trim().isEmpty()
+            || txtStok.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Semua field wajib diisi!",
+                    "Validasi Gagal",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            Double.parseDouble(txtHargaBeli.getText().trim());
+            Double.parseDouble(txtHargaJual.getText().trim());
+            Integer.parseInt(txtStok.getText().trim());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Harga Beli, Harga Jual, dan Stok harus berupa angka!",
+                    "Validasi Gagal",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        simpanDiklik = true;
+        dispose();
+    }//GEN-LAST:event_btnSimpanActionPerformed
+
+    private void btnBatalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalActionPerformed
+        // TODO add your handling code here:
+        simpanDiklik = false;
+        dispose();
+    }//GEN-LAST:event_btnBatalActionPerformed
 
     /**
      * @param args the command line arguments
