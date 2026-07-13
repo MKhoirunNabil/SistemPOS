@@ -26,6 +26,39 @@ public class Dasboard extends javax.swing.JFrame {
         this.userLogin = userLogin;
         this.kasirService = new KasirService();
         setLocationRelativeTo(null);
+
+        // FIX: sebelumnya nama & role di header selalu menampilkan teks statis
+        // "Selamat Datang, Admin" / "Role: Admin" bawaan GUI Builder, tidak
+        // pernah diganti sesuai siapa yang login. Sekarang diambil dari objek
+        // userLogin yang sebenarnya (bisa Admin atau Kasir - POLYMORPHISM).
+        lblSelamatDatang.setText("Selamat Datang, " + userLogin.getNama());
+        lblRole.setText("Role: " + userLogin.getLabelHakAkses());
+
+        // FIX: sebelumnya semua 6 menu selalu tampil untuk siapa saja.
+        // Sekarang menu disembunyikan/nonaktifkan jika role yang login
+        // tidak berhak mengaksesnya, murni lewat userLogin.bolehAkses(...)
+        // TANPA instanceof - inilah POLYMORPHISM: hasil berbeda tergantung
+        // objek asli (Admin/Kasir) walau method yang dipanggil sama persis.
+        aturHakAksesMenu();
+    }
+
+    /**
+     * Menyembunyikan panel menu yang tidak boleh diakses oleh role
+     * pengguna yang sedang login.
+     */
+    private void aturHakAksesMenu() {
+        aturVisibilitasMenu(panelMenuDataUser, "DATA_USER");
+        aturVisibilitasMenu(panelMenuDataBarang, "DATA_BARANG");
+        aturVisibilitasMenu(panelMenuKasir, "KASIR");
+        aturVisibilitasMenu(panelMenuLaporan, "LAPORAN");
+        aturVisibilitasMenu(panelMenuBackup, "BACKUP");
+        aturVisibilitasMenu(panelMenuRestore, "RESTORE");
+    }
+
+    private void aturVisibilitasMenu(javax.swing.JPanel panelMenu, String kodeMenu) {
+        boolean boleh = userLogin.bolehAkses(kodeMenu);
+        panelMenu.setVisible(boleh);
+        panelMenu.setEnabled(boleh);
     }
 
     /**
